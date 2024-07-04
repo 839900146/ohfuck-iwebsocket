@@ -1,0 +1,28 @@
+{
+  "name": "iwebsocket",
+  "private": false,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/iwebsocket.umd.js",
+  "module": "dist/iwebsocket.es.js",
+  "types": "dist/types/lib/ws.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.1",
+    "vite-plugin-dts": "^3.9.1"
+  },
+  "author": {
+    "name": "fuck_god",
+    "email": "839900146@qq.com"
+  }
+}
