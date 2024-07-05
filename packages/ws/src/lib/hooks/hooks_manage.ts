@@ -1,5 +1,5 @@
 import { IWebSocket } from "../ws/ws";
-import type { TWsHooks, TWsTriggerHooks, TWsHooksReturn } from "./hooks.manage";
+import type { TWsHooks, TWsTriggerHooks, TWsHooksReturn } from "@/interfaces";
 
 export class WsHooksManager {
     private hooks: {

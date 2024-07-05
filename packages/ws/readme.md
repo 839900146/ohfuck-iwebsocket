@@ -1,4 +1,4 @@
-# @fuck/WebSocket
+# @ohfuck/iwebsocket
 
 ## 简介
 本文档详细介绍了对WebSocket的封装，包括插件系统和Hooks机制的使用。封装的目的是提供一种更加灵活、功能丰富的WebSocket通信方式，以适应不同的业务场景。
@@ -7,7 +7,7 @@
     
 ### 安装
 ```bash
-npm install @ohfuck/iwebsocket -S
+bun add @ohfuck/iwebsocket
 ```
 
 ### 导入

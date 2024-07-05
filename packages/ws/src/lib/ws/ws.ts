@@ -1,33 +1,6 @@
 import { beautify_log } from "@/utils"
-import { WsHooksManager } from "../hooks/hooks_manage"
-
-type TListenerFn<T = any> = (event: T) => void
-
-type TListeners = {
-    message: TListenerFn<MessageEvent<any>>[]
-    open: TListenerFn<Event>[]
-    close: TListenerFn<CloseEvent>[]
-    error: TListenerFn<Event>[]
-}
-
-type TWsOptions = {
-    reconnect_interval?: number
-    max_reconnect_attempts?: number
-    hartbeat?: {
-        enable?: boolean
-        interval?: number
-        ping?: string
-        pong?: string
-    },
-    plugins?: IWsPlugin[]
-}
-
-export interface IWsPlugin {
-    name: string
-    init(ws: IWebSocket): void
-    destroy(ws: IWebSocket, hooks_manager: WsHooksManager): void
-    register_hooks?: (hooks_manager: WsHooksManager) => void
-}
+import { WsHooksManager } from "@/lib/hooks/hooks_manage"
+import type { IWsPlugin, TListeners, TWsOptions } from "@/interfaces"
 
 export class IWebSocket {
     options: any
