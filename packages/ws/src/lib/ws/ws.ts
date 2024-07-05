@@ -1,4 +1,5 @@
 import { beautify_log } from "@/utils"
+import { WsHooksManager } from "../hooks/hooks_manage"
 
 type TListenerFn<T = any> = (event: T) => void
 
@@ -24,11 +25,8 @@ type TWsOptions = {
 export interface IWsPlugin {
     name: string
     init(ws: IWebSocket): void
-    destroy(): void
-    modify_send_data?(data: unknown): unknown
-    modify_receive_data?(data: unknown): unknown
-    modify_listener_args?(type: string, listener: TListenerFn): TListenerFn
-    send_data?(data: unknown): void
+    destroy(ws: IWebSocket, hooks_manager: WsHooksManager): void
+    register_hooks?: (hooks_manager: WsHooksManager) => void
 }
 
 export class IWebSocket {
@@ -53,6 +51,7 @@ export class IWebSocket {
     private heartbeat_timer: ReturnType<typeof setTimeout> | null
     private hartbeat: { enable: boolean, interval: number, ping: string; pong: string }
     private plugins: IWsPlugin[]
+    private hooks_manager: WsHooksManager
 
 
     constructor(url: string, options: TWsOptions = {}) {
@@ -78,9 +77,17 @@ export class IWebSocket {
             close: [],
             error: []
         }
+
         this.plugins = options.plugins || []
 
-        this.plugins.forEach(plugin => plugin.init(this))
+        // 初始化hooks管理器
+        this.hooks_manager = new WsHooksManager(this)
+
+        // 注册插件的hooks
+        this.plugins.forEach(plugin => {
+            plugin.init(this)
+            plugin.register_hooks?.(this.hooks_manager)
+        })
 
         this.connect()
     }
@@ -91,6 +98,8 @@ export class IWebSocket {
             return
         }
 
+        this.hooks_manager.trigger_hook('before_connect')
+
         this.socket = new WebSocket(this.url)
 
         this.socket.onopen = (event) => {
@@ -99,6 +108,8 @@ export class IWebSocket {
             this.reconnect_attempts = 0
 
             beautify_log.success('socket连接成功')
+
+            this.hooks_manager.trigger_hook('after_connect')
 
             this.listeners.open.forEach(listener => listener(event))
             // 开启心跳
@@ -110,20 +121,22 @@ export class IWebSocket {
                 return
             }
 
+            this.hooks_manager.trigger_hook('after_receive', event)
+
             const new_event = { ...event }
 
-            this.plugins.forEach(plugin => {
-                if (plugin.modify_receive_data) {
-                    new_event.data = plugin.modify_receive_data(event.data);
-                }
-            })
+            new_event.data = this.hooks_manager.trigger_hook('transform_receive', new_event.data)
 
             this.listeners.message.forEach(listener => listener(new_event))
         };
 
         this.socket.onclose = (event) => {
             this.is_connect = false
+
+            this.hooks_manager.trigger_hook('on_close', event)
+
             this.listeners.close.forEach(listener => listener(event))
+
             if (event.code === 1006) {
                 beautify_log.wanning('socket连接断开，尝试重新连接')
                 this.stop_heartbeat()
@@ -135,6 +148,7 @@ export class IWebSocket {
 
         this.socket.onerror = (error) => {
             beautify_log.error('socket连接出错')
+            this.hooks_manager.trigger_hook('on_error', error)
             this.listeners.error.forEach(listener => listener(error))
             this.close()
         };
@@ -144,6 +158,14 @@ export class IWebSocket {
     private reconnect = () => {
         if (!this.reconnect_enable) return
         if (this.reconnect_attempts < this.max_reconnect_attempts) {
+
+            this.hooks_manager.trigger_hook('before_reconnect', {
+                attempts: this.reconnect_attempts,
+                max_attempts: this.max_reconnect_attempts,
+                interval: this.reconnect_interval,
+                url: this.url
+            })
+
             this.reconnect_attempts++
             setTimeout(() => {
                 beautify_log.wanning(`正在尝试重连socket，当前次数：${this.reconnect_attempts}`)
@@ -156,14 +178,12 @@ export class IWebSocket {
 
     /** 发送数据 */
     send = (data: unknown) => {
-        this.plugins.forEach(plugin => plugin.send_data?.(data))
-
+        
+        this.hooks_manager.trigger_hook('before_send', data)
+        
         if (this.is_connect) {
-            this.plugins.forEach(plugin => {
-                if (plugin.modify_send_data) {
-                    data = plugin.modify_send_data(data);
-                }
-            });
+            
+            data = this.hooks_manager.trigger_hook('transform_send', data)
 
             if (data instanceof ArrayBuffer || data instanceof Blob) {
                 this.socket!.send(data)
@@ -183,14 +203,9 @@ export class IWebSocket {
     add_listener = <T extends keyof TListeners, U extends TListeners[T][number]>(type: T, listener: U) => {
         if (!this.listeners[type]) return
 
-        this.plugins.forEach(plugin => {
-            if (plugin.modify_listener_args) {
-                listener = plugin.modify_listener_args(type, listener) as U;
-            }
-        });
+        const new_listener = this.hooks_manager.trigger_hook('modify_listeners', listener);
 
-        // @ts-ignore
-        this.listeners[type].push(listener)
+        this.listeners[type].push(new_listener || listener)
     }
 
     /** 移除监听状态 */
@@ -215,7 +230,7 @@ export class IWebSocket {
     destroy() {
         this.reconnect_enable = false
         this.close()
-        this.plugins.forEach(plugin => plugin.destroy())
+        this.plugins.forEach(plugin => plugin.destroy(this, this.hooks_manager))
     }
 
     /** 开启心跳 */
@@ -242,6 +257,7 @@ export class IWebSocket {
             if (esixt) continue
             this.plugins.push(plugin)
             plugin.init(this)
+            plugin.register_hooks?.(this.hooks_manager)
         }
     }
 
@@ -251,7 +267,7 @@ export class IWebSocket {
             const index = this.plugins.indexOf(plugin)
             if (index !== -1) {
                 this.plugins.splice(index, 1)
-                plugin.destroy()
+                plugin.destroy(this, this.hooks_manager)
             }
         }
     }

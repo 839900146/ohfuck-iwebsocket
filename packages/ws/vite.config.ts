@@ -11,7 +11,9 @@ export default defineConfig({
             ],
             include: [
                 "src/build.ts",
-                "src/lib/**/*.ts"
+                "src/lib/**/*.ts",
+                "src/plugins/**/*.ts",
+                "src/utils/**/*.ts",
             ],
             outDir: path.resolve(__dirname, 'dist/types'),
         })

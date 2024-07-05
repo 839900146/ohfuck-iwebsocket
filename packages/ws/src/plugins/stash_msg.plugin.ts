@@ -1,3 +1,4 @@
+import type { WsHooksManager } from '@/lib/hooks/hooks_manage'
 import type { IWebSocket, IWsPlugin } from '@/lib/ws/ws'
 
 type TOptions = {
@@ -19,8 +20,7 @@ export class StashMsgPlugin implements IWsPlugin {
     name: string = 'StashMsgPlugin'
     stash_send_msgs: Set<unknown>
     opts: Required<TOptions>
-    private ws: IWebSocket | null = null
-
+    log!: (type: keyof IWebSocket['log'], ...args: any[]) => void
     private store_key = `iws-stash-offline-msg`
 
     constructor(opts: TOptions = {}) {
@@ -28,32 +28,30 @@ export class StashMsgPlugin implements IWsPlugin {
         this.opts = { ...default_options, ...opts } as Required<TOptions>
     }
 
-    async init(ws: IWebSocket) {
-        this.ws = ws
-
-        ws.add_listener('open', async () => {
-            // 加载离线消息
-            await this.persist_msg('load')
-            // 发送暂存的消息
-            const msgs = Array.from(this.stash_send_msgs)
-            if (msgs.length > 0) {
-                this.log('info', '发送暂存的消息', msgs)
-                for (const msg of msgs) {
-                    ws.send(msg)
-                    this.stash_send_msgs.delete(msg)
-                }
+    init = async (ws: IWebSocket) => {
+        this.log = (type: keyof IWebSocket['log'], ...args: any[]) => {
+            if (this.opts.log) {
+                ws.log[type](...args)
             }
-        })
+        }
     }
 
-    destroy(): void {
+    destroy = (_ws: IWebSocket, hooks_manager: WsHooksManager): void => {
         this.stash_send_msgs.clear()
-        this.ws = null
+        hooks_manager.unregister_hook('after_connect', this.handle_after_connect)
+        hooks_manager.unregister_hook('before_send', this.handle_before_send)
     }
 
-    send_data(data: unknown): void {
-        // 暂存离线消息
-        if (this.ws?.is_connect) return
+    register_hooks = (hooks_manager: WsHooksManager) => {
+        // 连接成功后，加载离线消息并发送
+        hooks_manager.register_hook('after_connect', this.handle_after_connect)
+        // 发送消息前，如果当前socket处于断开状态，则暂存消息
+        hooks_manager.register_hook('before_send', this.handle_before_send)
+    }
+
+    // 处理发送消息前的钩子
+    private handle_before_send = (ws: IWebSocket, data: unknown) => {
+        if (ws.is_connect) return
 
         this.stash_send_msgs.add(data)
         this.log('info', '暂存离线消息', data)
@@ -66,12 +64,27 @@ export class StashMsgPlugin implements IWsPlugin {
         this.persist_msg('set')
     }
 
+    // 处理连接成功后的钩子
+    private handle_after_connect = async (ws: IWebSocket) => {
+        // 加载离线消息
+        await this.persist_msg('load')
+        // 发送暂存的消息
+        const msgs = Array.from(this.stash_send_msgs)
+        if (msgs.length > 0) {
+            this.log('info', '发送暂存的消息', msgs)
+            for (const msg of msgs) {
+                ws.send(msg)
+                this.stash_send_msgs.delete(msg)
+            }
+        }
+    }
+
     // 持久化暂存消息
-    private async persist_msg(action: 'get' | 'set' | 'load') {
+    private persist_msg = async (action: 'get' | 'set' | 'load') => {
         return new Promise<any[] | void>(async (resolve) => {
 
             if (!this.opts.persist_offline_msgs) return resolve()
-            
+
             if (action === 'get') {
                 const msgs = localStorage.getItem(this.store_key)
                 return resolve(msgs ? JSON.parse(msgs) : [])
@@ -92,11 +105,5 @@ export class StashMsgPlugin implements IWsPlugin {
                 return resolve()
             }
         })
-    }
-
-    private log(type: keyof IWebSocket['log'], ...args: any[]): void {
-        if (this.opts.log) {
-            this.ws?.log[type](...args)
-        }
     }
 }

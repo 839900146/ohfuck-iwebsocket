@@ -7,8 +7,8 @@ const ws = new IWebSocket("http://localhost:10002", {
         interval: 5
     },
     plugins: [
-        new StashMsgPlugin({ persist_offline_msgs: true }),
-        new NetworkPlugin()
+        new StashMsgPlugin({ persist_offline_msgs: true, log: true }),
+        new NetworkPlugin({ log: true })
     ]
 })
 

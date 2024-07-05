@@ -11,20 +11,27 @@ const default_options: TOptions = {
 export class NetworkPlugin implements IWsPlugin {
     name = 'NetworkPlugin'
     opts: Required<TOptions>
+    log!: (type: keyof IWebSocket['log'], ...args: any[]) => void
     private ws: IWebSocket | null = null
 
     constructor(opts: TOptions = {}) {
         this.opts = { ...default_options, ...opts } as Required<TOptions>
     }
 
-    init(ws: IWebSocket): void {
+    init = (ws: IWebSocket): void => {
         this.ws = ws
+
+        this.log = (type: keyof IWebSocket['log'], ...args: any[]) => {
+            if (this.opts.log) {
+                ws.log[type](...args)
+            }
+        }
 
         window.addEventListener('online', this.handle_online)
         window.addEventListener('offline', this.handle_offline)
     }
 
-    destroy(): void {
+    destroy = (): void => {
         window.removeEventListener('online', this.handle_online)
         window.removeEventListener('offline', this.handle_offline)
     }
@@ -36,11 +43,5 @@ export class NetworkPlugin implements IWsPlugin {
 
     handle_online = () => {
         this.log('success', '网络连接成功');
-    }
-
-    log(type: keyof IWebSocket['log'], ...args: any[]): void {
-        if (this.opts.log) {
-            this.ws?.log[type](...args)
-        }
     }
 }

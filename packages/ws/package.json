@@ -1,11 +1,16 @@
 {
-  "name": "iwebsocket",
+  "name": "@ohfuck/iwebsocket",
+  "description": "用于Node.js和浏览器的轻量级且灵活的WebSocket库; A lightweight and flexible WebSocket library for Node.js and the browser",
+  "keywords": [
+    "websocket",
+    "socket"
+  ],
   "private": false,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "main": "dist/iwebsocket.umd.js",
   "module": "dist/iwebsocket.es.js",
-  "types": "dist/types/lib/ws.d.ts",
+  "types": "dist/types/build.d.ts",
   "files": [
     "dist",
     "README.md"
@@ -23,6 +28,17 @@
   },
   "author": {
     "name": "fuck_god",
+    "email": "839900146@qq.com",
+    "url": "https://github.com/839900146/ohfuck-iwebsocket.git"
+  },
+  "homepage": "https://github.com/839900146/ohfuck-iwebsocket.git#readme",
+  "bugs": {
+    "url": "https://github.com/839900146/ohfuck-iwebsocket.git/issues",
     "email": "839900146@qq.com"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   }
 }
