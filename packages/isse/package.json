@@ -1,0 +1,27 @@
+{
+  "name": "@ohfuck/isse",
+  "private": false,
+  "version": "0.0.1",
+  "type": "module",
+  "main": "dist/iwebsocket.umd.js",
+  "module": "dist/iwebsocket.es.js",
+  "types": "dist/types/build.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2",
+    "vite": "^5.3.1"
+  },
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}
