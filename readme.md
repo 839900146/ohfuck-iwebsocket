@@ -1,2 +1,2 @@
 # 文档
-- [@ohfuck/iwebsocket](./packages/ws/readme.md)
+- [@ohfuck/iwebsocket](./packages/iwebsocket/readme.md)
