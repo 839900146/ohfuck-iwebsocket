@@ -1,23 +1,40 @@
 {
   "name": "@ohfuck/isse",
+  "keywords": [
+    "EventSource",
+    "SSE"
+  ],
+  "description": "用于Bun和浏览器的轻量级且灵活的EventSource/SSE库; A lightweight and flexible EventSource/SSE library for Node.js and the browser",
   "private": false,
   "version": "0.0.1",
   "type": "module",
-  "main": "dist/iwebsocket.umd.js",
-  "module": "dist/iwebsocket.es.js",
+  "main": "dist/isse.umd.js",
+  "module": "dist/isse.es.js",
   "types": "dist/types/build.d.ts",
   "files": [
     "dist",
     "README.md"
   ],
   "scripts": {
-    "dev": "vite",
+    "start": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/express": "^4.17.21",
+    "express": "^4.19.2",
     "typescript": "^5.2.2",
     "vite": "^5.3.1"
+  },
+  "author": {
+    "name": "fuck_god",
+    "email": "839900146@qq.com",
+    "url": "https://github.com/839900146/ohfuck-iwebsocket.git"
+  },
+  "homepage": "https://github.com/839900146/ohfuck-iwebsocket.git#readme",
+  "bugs": {
+    "url": "https://github.com/839900146/ohfuck-iwebsocket.git/issues",
+    "email": "839900146@qq.com"
   },
   "license": "MIT",
   "publishConfig": {

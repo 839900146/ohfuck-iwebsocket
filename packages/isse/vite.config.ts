@@ -12,11 +12,10 @@ export default defineConfig({
             include: [
                 "src/build.ts",
                 "src/lib/**/*.ts",
-                "src/plugins/**/*.ts",
-                "src/utils/**/*.ts",
+                "src/types/**/*.ts",
             ],
             outDir: path.resolve(__dirname, 'dist/types'),
-        })
+        }),
     ],
     resolve: {
         alias: {
@@ -30,9 +29,19 @@ export default defineConfig({
             fileName: (format) => `isse.${format}.js`,
             formats: ['es', 'cjs', 'umd', 'iife']
         },
-        copyPublicDir: false
+        copyPublicDir: false,
+        rollupOptions: {
+            external: ['http'],
+        }
     },
     server: {
-        port: 10001
-    }
+        port: 10001,
+        proxy: {
+            '/sse': {
+                target: 'http://localhost:10003',
+                changeOrigin: true,
+                ws: true
+            }
+        }
+    },
 })
