@@ -14,6 +14,7 @@ export default defineConfig({
                 "src/lib/**/*.ts",
                 "src/plugins/**/*.ts",
                 "src/utils/**/*.ts",
+                "src/interfaces/**/*.ts",
             ],
             outDir: path.resolve(__dirname, 'dist/types'),
         })

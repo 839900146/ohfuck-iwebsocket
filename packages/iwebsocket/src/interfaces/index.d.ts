@@ -1,2 +1,2 @@
-export * from './hooks.manage'
-export * from './ws'
+export * from './hooks.manage.d'
+export * from './ws.d'
