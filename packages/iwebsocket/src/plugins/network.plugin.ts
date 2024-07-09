@@ -1,4 +1,5 @@
-import type { IWebSocket, IWsPlugin } from '@/lib/ws/ws'
+import type { IWebSocket } from '@/lib/ws/ws'
+import type { IWsPlugin } from '@/interfaces/ws'
 
 type TOptions = {
     log?: boolean

@@ -96,11 +96,9 @@ export class IWebSocket {
 
             this.hooks_manager.trigger_hook('after_receive', event)
 
-            const new_event = { ...event }
+            const new_data = this.hooks_manager.trigger_hook('transform_receive', event.data)
 
-            new_event.data = this.hooks_manager.trigger_hook('transform_receive', new_event.data)
-
-            this.listeners.message.forEach(listener => listener(new_event))
+            this.listeners.message.forEach(listener => listener(new_data))
         };
 
         this.socket.onclose = (event) => {

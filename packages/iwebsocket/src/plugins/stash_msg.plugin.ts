@@ -1,5 +1,6 @@
 import type { WsHooksManager } from '@/lib/hooks/hooks_manage'
-import type { IWebSocket, IWsPlugin } from '@/lib/ws/ws'
+import type { IWebSocket } from '@/lib/ws/ws'
+import type { IWsPlugin } from '@/interfaces/ws'
 
 type TOptions = {
     /** 开启日志输出 */

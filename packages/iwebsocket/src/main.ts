@@ -1,7 +1,7 @@
 import { IWebSocket, NetworkPlugin } from "./build";
 import { StashMsgPlugin } from "./plugins/stash_msg.plugin";
 
-const ws = new IWebSocket("http://localhost:10002", {
+const ws = new IWebSocket("ws://localhost:10002", {
     hartbeat: {
         enable: true,
         interval: 5
@@ -17,5 +17,5 @@ ws.add_listener('open', () => {
 })
 
 ws.add_listener('message', (msg) => {
-    console.log('message', msg.data)
+    console.log('message', msg)
 })

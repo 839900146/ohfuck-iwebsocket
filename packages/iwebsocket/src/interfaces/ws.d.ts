@@ -1,10 +1,10 @@
 import type { IWebSocket } from "@/lib/ws/ws";
 import type { WsHooksManager } from "@/lib/hooks/hooks_manage";
 
-export type TListenerFn<T = any> = (event: T) => void
+export type TListenerFn<T = any> = (msg: T) => void
 
 export type TListeners = {
-    message: TListenerFn<MessageEvent<any>>[]
+    message: TListenerFn<any>[]
     open: TListenerFn<Event>[]
     close: TListenerFn<CloseEvent>[]
     error: TListenerFn<Event>[]
