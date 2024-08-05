@@ -49,7 +49,7 @@ export class IWebSocket {
             open: [],
             close: [],
             error: [],
-            newwork_status: []
+            network_status: []
         }
 
         this.plugins = options.plugins || []
@@ -156,13 +156,13 @@ export class IWebSocket {
         const handle_offline = () => {
             this.is_connect = false;
             this.hooks_manager.trigger_hook('on_network_status', this.is_connect)
-            this.listeners.newwork_status.forEach(listener => listener(this.is_connect))
+            this.listeners.network_status.forEach(listener => listener(this.is_connect))
         }
     
         const handle_online = () => {
             this.is_connect = true;
             this.hooks_manager.trigger_hook('on_network_status', this.is_connect)
-            this.listeners.newwork_status.forEach(listener => listener(this.is_connect))
+            this.listeners.network_status.forEach(listener => listener(this.is_connect))
         }
 
         window.addEventListener('online', handle_online)

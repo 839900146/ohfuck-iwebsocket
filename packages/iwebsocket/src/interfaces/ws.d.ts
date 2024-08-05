@@ -8,7 +8,7 @@ export type TListeners = {
     open: TListenerFn<Event>[]
     close: TListenerFn<CloseEvent>[]
     error: TListenerFn<Event>[]
-    newwork_status: TListenerFn<boolean>[]
+    network_status: TListenerFn<boolean>[]
 }
 
 export type TWsOptions = {
