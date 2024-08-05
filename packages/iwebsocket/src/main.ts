@@ -1,4 +1,4 @@
-import { IWebSocket, NetworkPlugin } from "./build";
+import { IWebSocket } from "./build";
 import { StashMsgPlugin } from "./plugins/stash_msg.plugin";
 
 const ws = new IWebSocket("ws://localhost:10002", {
@@ -8,7 +8,6 @@ const ws = new IWebSocket("ws://localhost:10002", {
     },
     plugins: [
         new StashMsgPlugin({ persist_offline_msgs: true, log: true }),
-        new NetworkPlugin({ log: true })
     ]
 })
 

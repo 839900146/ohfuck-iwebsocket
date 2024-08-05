@@ -48,7 +48,8 @@ export class IWebSocket {
             message: [],
             open: [],
             close: [],
-            error: []
+            error: [],
+            newwork_status: []
         }
 
         this.plugins = options.plugins || []
@@ -63,6 +64,9 @@ export class IWebSocket {
         })
 
         this.connect()
+
+        // 监听网络状态
+        this.watch_network_status()
     }
 
     /** 连接socket */
@@ -145,6 +149,25 @@ export class IWebSocket {
         } else {
             beautify_log.error('socket已关闭；达到最大重连次数')
         }
+    }
+
+    /** 监听网络变换 */
+    private watch_network_status = () => {
+        const handle_offline = () => {
+            this.is_connect = false;
+            this.hooks_manager.trigger_hook('on_network_status', false)
+        }
+    
+        const handle_online = () => {
+            this.is_connect = true;
+            this.hooks_manager.trigger_hook('on_network_status', true)
+        }
+
+        window.addEventListener('online', handle_online)
+        window.addEventListener('offline', handle_offline)
+
+        window.removeEventListener('online', handle_online)
+        window.removeEventListener('offline', handle_offline)
     }
 
     /** 发送数据 */

@@ -16,6 +16,7 @@ export class WsHooksManager {
             before_reconnect: [],
             on_close: [],
             on_error: [],
+            on_network_status: [],
             transform_send: [],
             transform_receive: [],
             modify_listeners: [],
@@ -51,6 +52,7 @@ export class WsHooksManager {
             case 'before_reconnect':
             case 'on_close':
             case 'on_error':
+            case 'on_network_status':
                 {
                     callbacks.forEach(cb => cb(this.ws, ...args))
                     return null as any as TWsHooksReturn<K>;

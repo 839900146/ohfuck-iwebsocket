@@ -15,6 +15,8 @@ export type TWsHooks = {
     on_close: (event: CloseEvent) => void,
     /** 发生错误后 */
     on_error: (error: Event) => void,
+    /** 网络状态变化 */
+    on_network_status: (data: boolean) => void,
     /** 转换要发送的数据 */
     transform_send: (data: unknown) => unknown,
     /** 转换接收到的数据 */

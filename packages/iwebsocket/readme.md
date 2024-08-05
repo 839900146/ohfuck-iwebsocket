@@ -47,6 +47,10 @@ ws.add_listener('close', (event) => {
 ws.add_listener('error', (event) => {
     console.error('WebSocket 连接出错：', event);
 });
+
+ws.add_listener('newwork_status', (status) => {
+    console.warn('WebSocket 网络状态出现变化：', status);
+});
 ```
 
 ## 重连机制
@@ -112,6 +116,7 @@ Hooks机制允许用户在WebSocket的关键生命周期事件中插入自定义
 - before_reconnect: 重连前触发。
 - on_close: 连接关闭后触发。
 - on_error: 出现错误时触发。
+- on_network_status: 网络状态变化时触发。
 - transform_send: 转换要发送的数据。
 - transform_receive: 转换接收到的数据。
 - modify_listeners: 修改事件监听器。
@@ -134,6 +139,7 @@ export class MyCustomPlugin implements IWsPlugin {
         hooks_manager.register_hook('before_reconnect', () => {})
         hooks_manager.register_hook('on_close', () => {})
         hooks_manager.register_hook('on_error', () => {})
+        hooks_manager.register_hook('on_network_status', () => {})
         hooks_manager.register_hook('transform_send', () => {})
         hooks_manager.register_hook('transform_receive', () => {})
         hooks_manager.register_hook('modify_listeners', () => {})
@@ -146,14 +152,13 @@ export class MyCustomPlugin implements IWsPlugin {
 ```
 
 ## 内置插件
-我们内置了2个插件：
+我们内置了1个插件：
 
 1. `StashMsgPlugin`：用于暂存消息，当WebSocket连接中断时，可自动将要发送的消息暂存，待连接恢复后再发送。
-2. `NetworkPlugin`：用于监控网络状态，当监控到网络连接中断时，第一时间将socket实例状态更改为`未连接`状态，随后socket实例会触发重连
 
 ## 示例
 ```typescript
-import { IWebSocket, NetworkPlugin, StashMsgPlugin } from "@ohfuck/iwebsocket";
+import { IWebSocket, StashMsgPlugin } from "@ohfuck/iwebsocket";
 
 const ws = new IWebSocket("http://localhost:10002", {
     hartbeat: {
@@ -166,10 +171,6 @@ const ws = new IWebSocket("http://localhost:10002", {
             max_msgs: 500,
             // 可选，是否持久化暂存离线消息，默认false=>仅在内存中缓存，true=>持久化到本地localStorage
             persist_offline_msgs: true, 
-            // 可选，是否展示日志，默认false
-            log: true 
-        }),
-        new NetworkPlugin({ 
             // 可选，是否展示日志，默认false
             log: true 
         })
